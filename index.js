@@ -24,8 +24,8 @@ async function generateText(prompt) {
 
     return response.data.choices[0].text.trim();
   } catch (error) {
-    console.log(error.response.data)
-    return('Error:', error.response.data);
+    console.log(error)
+    return('Error:', error);
   }
 }
 
@@ -33,16 +33,29 @@ async function generateText(prompt) {
 
 
 
-  app.get("/",(req,res)=>{
-    const prompt = 'Once upon a time';
-    generateText(prompt)
-      .then((response) => {
-        res.send('Generated text:', response);
-      })
-      .catch((error) => {
-         res.send('Error:', error);
+app.get('/', async (req, res) => {
+  try {
+    const keyword = req.query.keyword;
+    const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
+      prompt: `I want you to give me a story on topic ${keyword}`,
+      max_tokens: 4000,
+      temperature: 0.7,
+      n: 1
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
     });
-  })
+
+    const story = response.data.choices[0].text.trim();
+    res.json({ story });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
 
 app.listen(process.env.port,()=>{
     console.log(`Server running at http://localhost:${process.env.port}`)
