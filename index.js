@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 require("dotenv").config()
+const cors = require("cors");
+
+app.use(cors({origin:"*"}))
 
 
 const axios = require('axios');
@@ -22,6 +25,7 @@ async function generateText(prompt) {
       },
     });
 
+    console.log(response.data.choices[0].text.trim())
     return response.data.choices[0].text.trim();
   } catch (error) {
     console.log(error)
@@ -31,13 +35,16 @@ async function generateText(prompt) {
 
 // Example usage
 
+app.get("/",(req,res)=>{
+  res.send("HELLO")
+})
 
 
-app.get('/', async (req, res) => {
+app.get('/story', async (req, res) => {
   try {
     const keyword = req.query.keyword;
     const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
-      prompt: `I want you to give me a story on topic ${keyword}`,
+      prompt: `I want you to give me a story on topic ${keyword} in hinglish`,
       max_tokens: 4000,
       temperature: 0.7,
       n: 1

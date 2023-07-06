@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  </head>
+  <style>
+       #story{
+        width: 90%;
+        height: 40vh;
+        margin: auto;
+       }
+       #spinner{
+        display: none;
+       }
+  </style>
+  <body>
+    
+      
+      <!-- As a heading -->
+      <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+          <span class="navbar-brand mb-0 h1">Open AI Story Generation</span>
+        </div>
+      </nav>
+
+    <div class="container">
+        <form>
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Topic</label>
+              <input type="text" class="form-control" id="keyword" aria-describedby="emailHelp">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+    </div>
+
+    <div class="spinner-border text-primary" role="status" id="spinner">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
+    <div id="story">
+        
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script>
+        document.querySelector("form").addEventListener("submit",(e)=>{
+            e.preventDefault();
+
+            let keyword = document.querySelector("#keyword").value;
+            document.querySelector("#keyword").value = "";
+
+            //console.log(keyword)
+            get_story(keyword);
+            
+        })
+
+
+        async function get_story(keyword){
+            try {
+                document.querySelector("#spinner").style.display = "block";
+                let response = await fetch(`https://openai-story-generation.onrender.com/?keyword=${keyword}`);
+                let data = await response.json();
+                document.querySelector("#spinner").style.display = "none";
+                document.querySelector("#story").innerHTML = `<h4>${data.story}</h4>`;
+            } catch (error) {
+                alert(error)
+                document.querySelector("#spinner").style.display = "none";
+            }
+        }
+
+    </script>
+  </body>
+</html>
