@@ -4,7 +4,7 @@ require("dotenv").config()
 const cors = require("cors");
 
 app.use(cors({origin:"*"}))
-
+app.use(express.json())
 
 const axios = require('axios');
 
@@ -45,6 +45,84 @@ app.get('/story', async (req, res) => {
     const keyword = req.query.keyword;
     const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
       prompt: `I want you to give me a story on topic ${keyword} in hinglish`,
+      max_tokens: 4000,
+      temperature: 0.7,
+      n: 1
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const story = response.data.choices[0].text.trim();
+    res.json({ story });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+
+
+app.post('/convert', async (req, res) => {
+  try {
+    let payload = req.body;
+    let code = payload.code;
+    let target_language = payload.target_language;
+    const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
+      prompt: `I want to convert the code into ${target_language}. the code is ##${code}##`,
+      max_tokens: 4000,
+      temperature: 0.7,
+      n: 1
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const story = response.data.choices[0].text.trim();
+    res.json({ story });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+
+app.post('/debug', async (req, res) => {
+  try {
+    let payload = req.body;
+    let code = payload.code;
+    const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
+      prompt: `I want you to debug the code where there are error . the code is ##${code}##`,
+      max_tokens: 4000,
+      temperature: 0.7,
+      n: 1
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const story = response.data.choices[0].text.trim();
+    res.json({ story });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+
+
+app.post('/explain', async (req, res) => {
+  try {
+    let payload = req.body;
+    let code = payload.code;
+    const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
+      prompt: `I want you to explain the code . the code is ##${code}##`,
       max_tokens: 4000,
       temperature: 0.7,
       n: 1
